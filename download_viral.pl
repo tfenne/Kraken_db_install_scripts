@@ -7,15 +7,15 @@ use Bio::PrimarySeq;
 # create a directory
 unless (-d "viral") {
         mkdir "viral";
-        chdir "viral";
 }
+chdir "viral";
 
 
 # get the assembly file
 if (-e "assembly_summary.txt") {
 	system("rm assembly_summary.txt");
 }
-system("wget -q ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/viral/assembly_summary.txt");
+system("wget --read-timeout=20 -q ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/viral/assembly_summary.txt");
 
 unless (-e "assembly_summary.txt") {
 	warn "Unable to download assembly_summary.txt\n";
@@ -36,7 +36,7 @@ while(<IN>) {
 
 	my @d = split(/\t/);
 
-	if ($d[11] eq "Complete Genome") {
+	if ($d[11] eq "Complete Genome" || $d[11] eq "Chromosome") {
 		my $ftppath = $d[19];
 
 		# get the unique assembly name
@@ -46,7 +46,7 @@ while(<IN>) {
 		my $fullpath = "$ftppath" . "/" . $aname . "_genomic.fna.gz";
 
 		# download
-		system("wget -q $fullpath");
+		system("wget --read-timeout=20 -q $fullpath");
 		unless (-e "${aname}_genomic.fna.gz") {
 			warn "We don't have ${aname}_genomic.fna.gz, did download fail?";
 			next;
